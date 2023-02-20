@@ -120,26 +120,42 @@ export PKG_CONFIG_PATH="$BUILD_DIR/.apt/usr/lib/x86_64-linux-gnu/pkgconfig:$BUIL
 # ---
 # Installing packages
 
-if [ -f "${BUILD_DIR}/cran_archive.csv" ]; then
+if [ -f "${BUILD_DIR}/R-packages" ]; then
 
-    while IFS=, read -r pkg_name pkg_version; do
-        echo "-----> Installing package ${pkg_name} (${pkg_version})..."
+    while IFS=" " read -r pkg_name pkg_version; do
 
-        if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
-            echo "Fetched from cache."
-        else
-            echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
-            curl \
-                --location "${cran_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
-                --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+        version="${pkg_version:-latest}"
+
+        if [ "${version}" = "*" ]; then
+            version="latest"
         fi
 
-        echo "Installing."
-            R CMD INSTALL \
-                -l "${BUILD_DIR}/R-${R_VERSION}/lib" \
-                --no-html \
-                "${pkg_name}_${pkg_version}.tar.gz"
-    done < "${BUILD_DIR}/cran_archive.csv"
+        echo "-----> Installing package ${pkg_name} (${pkg_version})..."
+
+        if [ "${version}" = "latest" ]; then
+            R -e "install.packages( \
+                '${pkg_name}', \
+                '${BUILD_DIR}/R-${R_VERSION}/lib', \
+                destdir='${CACHE_DIR}', \
+                repos='${r_url}' \
+            )"
+        else
+            if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
+                echo "Fetched from cache."
+            else
+                echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
+                curl \
+                    --location "${cran_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
+                    --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+            fi
+
+            echo "Installing."
+                R CMD INSTALL \
+                    -l "${BUILD_DIR}/R-${R_VERSION}/lib" \
+                    --no-html \
+                    "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+        fi
+    done < "${BUILD_DIR}/R-packages"
 fi
 
 if [ -f "${BUILD_DIR}/cran_latest" ]; then
