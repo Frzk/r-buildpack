@@ -163,16 +163,4 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
     done < "${BUILD_DIR}/R-packages"
 fi
 
-if [ -f "${BUILD_DIR}/cran_latest" ]; then
-    while IFS= read -r pkg_name; do
-        echo "-----> Installing package ${pkg_name} (latest version)..."
-        R -e "install.packages( \
-            '${pkg_name}', \
-            '${BUILD_DIR}/R-${R_VERSION}/lib', \
-            destdir='${CACHE_DIR}', \
-            repos='${r_url}' \
-        )"
-    done < "${BUILD_DIR}/cran_latest"
-fi
-
 echo "Done."
