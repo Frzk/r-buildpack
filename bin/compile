@@ -137,12 +137,8 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
         echo "-----> Installing package ${pkg_name} (${pkg_version})..."
 
         if [ "${version}" = "latest" ]; then
-            R -e "install.packages( \
-                '${pkg_name}', \
-                '${BUILD_DIR}/R-${R_VERSION}/lib', \
-                destdir='${CACHE_DIR}', \
-                repos='${r_url}' \
-            )"
+            R -e "install.packages('${pkg_name}', \
+                '${BUILD_DIR}/R-${R_VERSION}/lib', repos='${r_url}')"
         else
             if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
                 echo "Fetched from cache."
