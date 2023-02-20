@@ -11,8 +11,11 @@ readonly BUILD_DIR="${1}"
 readonly CACHE_DIR="${2}"
 readonly ENV_DIR="${3}"
 
-readonly BASE_DIR="$( cd -P "$( dirname "$0" )" && pwd )"
-readonly BUILDPACK_DIR="$( readlink -f "${BASE_DIR}/.." )"
+BASE_DIR="$( cd -P "$( dirname "$0" )" && pwd )"
+readonly BASE_DIR
+
+BUILDPACK_DIR="$( readlink -f "${BASE_DIR}/.." )"
+readonly BUILDPACK_DIR
 
 readonly R_VERSION="${R_VERSION:-4.0.0}"
 readonly r_url="https://cran.r-project.org"
