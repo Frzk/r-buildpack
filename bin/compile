@@ -59,8 +59,9 @@ export PATH
 # ----
 # Download and compile R
 
-curl \
-    --location "${r_base_url}/R-${R_VERSION:0:1}/R-${R_VERSION}.tar.gz" \
+curl --silent --location \
+    --retry 6 --retry-connrefused --retry-delay 0 \
+    "${r_base_url}/R-${R_VERSION:0:1}/R-${R_VERSION}.tar.gz" \
     --output "${CACHE_DIR}/R-${R_VERSION}.tar.gz"
 
 tar --extract --gzip --verbose --file="${CACHE_DIR}/R-${R_VERSION}.tar.gz" \
@@ -94,9 +95,9 @@ popd
 # ---
 # Writing profile script
 
-mkdir -p ${BUILD_DIR}/.profile.d
+mkdir -p "${BUILD_DIR}/.profile.d"
 
-cat <<EOF >${BUILD_DIR}/.profile.d/R.sh
+cat <<EOF >"${BUILD_DIR}/.profile.d/050-R.sh"
 export PATH="\$HOME/R/bin:\$HOME/.apt/usr/bin:\$HOME/.apt/usr/sbin:\$PATH"
 export LD_LIBRARY_PATH="\$HOME/.apt/lib/x86_64-linux-gnu:\$HOME/.apt/usr/lib/x86_64-linux-gnu:\$HOME/.apt/usr/lib/i386-linux-gnu:\$HOME/.apt/lib:\$HOME/.apt/usr/lib:\$LD_LIBRARY_PATH"
 export LIBRARY_PATH="\$HOME/.apt/lib/x86_64-linux-gnu:\$HOME/.apt/usr/lib/x86_64-linux-gnu:\$HOME/.apt/usr/lib/i386-linux-gnu:\$HOME/.apt/lib:\$HOME/.apt/usr/lib:\$LIBRARY_PATH"
@@ -144,8 +145,9 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 echo "Fetched from cache."
             else
                 echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
-                curl \
-                    --location "${cran_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
+                curl --silent --location \
+                    --retry 6 --retry-connrefused --retry-delay 0 \
+                    "${r_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
                     --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
             fi
 
