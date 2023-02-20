@@ -121,23 +121,36 @@ export PKG_CONFIG_PATH="$BUILD_DIR/.apt/usr/lib/x86_64-linux-gnu/pkgconfig:$BUIL
 # Installing packages
 
 if [ -f "${BUILD_DIR}/cran_archive.csv" ]; then
-    while IFS=, read -r pkg_name pkg_version; do
-        echo "-----> Downloading package ${pkg_name}_${pkg_version}.tar.gz..."
-        curl \
-            --location "${cran_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
-            --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
 
-        echo "-----> Installing package ${pkg_name}..."
-        R CMD INSTALL \
-            -l "${BUILD_DIR}/R-${R_VERSION}/lib" \
-            "${pkg_name}_${pkg_version}.tar.gz"
+    while IFS=, read -r pkg_name pkg_version; do
+        echo "-----> Installing package ${pkg_name} (${pkg_version})..."
+
+        if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
+            echo "Fetched from cache."
+        else
+            echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
+            curl \
+                --location "${cran_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
+                --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+        fi
+
+        echo "Installing."
+            R CMD INSTALL \
+                -l "${BUILD_DIR}/R-${R_VERSION}/lib" \
+                --no-html \
+                "${pkg_name}_${pkg_version}.tar.gz"
     done < "${BUILD_DIR}/cran_archive.csv"
 fi
 
 if [ -f "${BUILD_DIR}/cran_latest" ]; then
     while IFS= read -r pkg_name; do
         echo "-----> Installing package ${pkg_name} (latest version)..."
-        R -e "install.packages('${pkg_name}', '${BUILD_DIR}/R-${R_VERSION}/lib', repos='${r_url}')"
+        R -e "install.packages( \
+            '${pkg_name}', \
+            '${BUILD_DIR}/R-${R_VERSION}/lib', \
+            destdir='${CACHE_DIR}', \
+            repos='${r_url}' \
+        )"
     done < "${BUILD_DIR}/cran_latest"
 fi
 
