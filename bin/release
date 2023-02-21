@@ -8,7 +8,7 @@ BUILD_DIR="${1}"
 readonly BUILD_DIR
 
 
-if [ -f "${BUILD_DIR}/run.R" ];
+if [ -f "${BUILD_DIR}/run.R" ]; then
     cat <<EOF
 ---
 default_process_types:
