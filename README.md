@@ -63,7 +63,7 @@ By default, the release script creates a `console` process type with the
 following command:
 
 ```bash
-R
+R --no-save
 ```
 
 If a file called `run.R`, `app.R` or `plumber.R` exists at the root of the
@@ -96,15 +96,13 @@ will be interpreted as `latest`.
 
 > **Warning**\
 > Due to R internals, there are 2 ways of installing a package:
-1. If you chose to install the `latest` version of a package, R is able to
-   automatically download and install it, along with its dependencies.
-2. If you need a specific version of a package, R is not able to automatically
-   download and install the dependencies. You will have to ask the buildpack
-   to install each dependency in the appropriate order.
+> 1. If you chose to install the `latest` version of a package, R is able to
+     automatically download and install it, along with its dependencies.
+> 2. If you need a specific version of a package, R is not able to
+     automatically download and install the dependencies. You will have to ask
+     the buildpack to install each dependency in the appropriate order.
 
-Example:
-
-The following `R-packages` file...
+For example, the following `R-packages` file...
 ```csv
 rlang 1.0.2
 ellipsis *
