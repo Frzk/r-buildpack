@@ -1,3 +1,44 @@
 #!/usr/bin/env bash
 
+# bin/release <build-dir>
+
+set -e
+
+BUILD_DIR="${1}"
+readonly BUILD_DIR
+
+
+if [ -f "${BUILD_DIR}/run.R" ];
+    cat <<EOF
+---
+default_process_types:
+  console: R --no-save
+  web: R --file=\${HOME}/run.R --gui-none --no-save
+EOF
+
+elif [ -f "${BUILD_DIR}/app.R" ]; then
+    cat <<EOF
+---
+default_process_types:
+  console: R --no-save
+  web: R --file=\${HOME}/app.R --gui-none --no-save
+EOF
+
+elif [ -f "${BUILD_DIR}/plumber.R" ]; then
+    cat <<EOF
+---
+default_process_types:
+  console: R --no-save
+  web: R --file=\${HOME}/plumber.R --gui-none --no-save
+EOF
+
+else
+    cat <<EOF
+---
+default_process_types:
+  console: R --no-save
+EOF
+
+fi
+
 exit 0
