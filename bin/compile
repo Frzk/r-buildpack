@@ -20,7 +20,7 @@ readonly BUILDPACK_DIR
 readonly R_VERSION="${R_VERSION:-4.0.0}"
 readonly r_url="https://cran.r-project.org"
 readonly r_base_url="${r_url}/src/base"
-readonly r_contrib_url="${r_url}/src/contrib/Archive"
+readonly r_package_url="${r_url}/package=%s&version=%s"
 
 readonly gfortran_package="gfortran-10"
 
@@ -144,9 +144,12 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 echo "Fetched from cache."
             else
                 echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
+                printf -v pkg_url \
+                    "${r_package_url}" "${pkg_name}" "${pkg_version}"
+
                 curl --silent --location \
                     --retry 6 --retry-connrefused --retry-delay 0 \
-                    "${r_contrib_url}/${pkg_name}/${pkg_name}_${pkg_version}.tar.gz" \
+                    "${pkg_url}" \
                     --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
             fi
 
