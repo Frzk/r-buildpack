@@ -30,6 +30,9 @@ The following instructions should get you started:
 
 5. Start a `console` one-off:
 
+(This will only work if you have a `console` process type defined in your
+`Procfile`.)
+
 ```bash
 scalingo --app my-r-app run --type console
 ```
@@ -59,15 +62,18 @@ configuration, ready to be packaged into a container.
 
 ### Release
 
-By default, the release script creates a `console` process type with the
-following command:
+By default, the release script creates a `console` process type which is
+(currently) ignored by Scalingo.
 
-```bash
-R --no-save
+If you need this `console` process type, add a [`Procfile`](https://doc.scalingo.com/platform/app/procfile)
+at the root of your project and add the `console` process type:
+
+```yaml
+console: R --no-save
 ```
 
-If a file called `run.R`, `app.R` or `plumber.R` exists at the root of the
-project, the `release` script also creates a `web` process type with the
+Moreover, if a file called `run.R`, `app.R` or `plumber.R` exists at the root
+of the project, the `release` script also creates a `web` process type with the
 following command:
 
 ```bash
@@ -77,10 +83,12 @@ R --file=${HOME}/{run,app,plumber}.R --gui-none --no-save
 Consequently:
 
 - if you don't need the `web` process type, make sure to scale it to zero:
+  
   ```bash
   scalingo --app -my-r-app scale web:0
   ```
-- if you need to run another command, create a [Procfile](https://doc.scalingo.com/platform/app/procfile)
+
+- if you need to run another command, add (or update) your [`Procfile`](https://doc.scalingo.com/platform/app/procfile)
   to specify how to start your `web` process.
 
 ### Installing R packages
