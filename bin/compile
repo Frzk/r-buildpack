@@ -77,6 +77,7 @@ pushd "${CACHE_DIR}/R-${R_VERSION}"
     --prefix="${BUILD_DIR}/R-${R_VERSION}" \
     --libdir="${BUILD_DIR}/R-${R_VERSION}/lib" \
     --enable-java=no \
+    --enable-R-shlib=yes \
     --with-recommended-packages=no \
     --without-x
 
