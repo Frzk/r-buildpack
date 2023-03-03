@@ -169,7 +169,7 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 tar --create --verbose --gzip \
                     --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
                     --directory="${BUILD_DIR}/R-${R_VERSION}/lib" \
-                    "${pkgname}"
+                    "${pkg_name}"
             fi
         fi
     done < "${BUILD_DIR}/R-packages"
