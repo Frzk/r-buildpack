@@ -167,8 +167,9 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
 
                 echo "Moving to cache."
                 tar --create --verbose --gzip \
+                    --directory "${BUILD_DIR}/R-${R_VERSION}/lib" \
                     --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
-                    "${BUILD_DIR}/R-${R_VERSION}/lib/${pkgname}"
+                    "${pkgname}"
             fi
         fi
     done < "${BUILD_DIR}/R-packages"
