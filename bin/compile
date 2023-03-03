@@ -17,6 +17,8 @@ readonly BASE_DIR
 BUILDPACK_DIR="$( readlink -f "${BASE_DIR}/.." )"
 readonly BUILDPACK_DIR
 
+readonly TMP_DIR="/tmp"
+
 readonly R_VERSION="${R_VERSION:-4.0.0}"
 readonly r_url="https://cran.r-project.org"
 readonly r_base_url="${r_url}/src/base"
@@ -142,6 +144,10 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 '${BUILD_DIR}/R-${R_VERSION}/lib', repos='${r_url}')"
         else
             if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
+                tar --extract --verbose --gzip \
+                    --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
+                    --directory="${BUILD_DIR}/R-${R_VERSION}/lib/"
+
                 echo "Fetched from cache."
             else
                 echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
@@ -151,14 +157,19 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 curl --silent --location \
                     --retry 6 --retry-connrefused --retry-delay 0 \
                     "${pkg_url}" \
-                    --output "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
-            fi
+                    --output "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz"
 
-            echo "Installing."
+                echo "Installing."
                 R CMD INSTALL \
                     -l "${BUILD_DIR}/R-${R_VERSION}/lib" \
                     --no-html \
-                    "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+                    "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+
+                echo "Moving to cache."
+                tar --create --verbose --gzip \
+                    --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
+                    "${BUILD_DIR}/R-${R_VERSION}/lib/${pkgname}"
+            fi
         fi
     done < "${BUILD_DIR}/R-packages"
 fi
