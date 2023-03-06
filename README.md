@@ -53,7 +53,11 @@ The platform considers the app as a R app if:
 During the *`BUILD`* phase, this buildpack:
 
 1. Downloads R if necessary (when the requested version is not in cache).
-2. Installs R.
+2. Compiles and installs R with the following options:
+   - `--enable-java=no`
+   - `--enable-recommended-packages=no`
+   - `--enable-R-shlib=yes`
+   - `--without-x`
 3. Downloads and installs the requested R packages, if any.
 4. Validates the build.
 
@@ -107,7 +111,7 @@ will be interpreted as `latest`.
 > 1. If you chose to install the `latest` version of a package, R is able to
      automatically download and install it, along with its dependencies.
 > 2. If you need a specific version of a package, R is not able to
-     automatically download and install the dependencies. You will have to ask
+     automatically download and install its dependencies. You will have to ask
      the buildpack to install each dependency in the appropriate order.
 
 For example, the following `R-packages` file...
@@ -126,6 +130,9 @@ shiny
    depends on `grDevices` and `utils`, installed with R),
 4. it will automatically install all `shiny` dependencies and then the latest
    version of `shiny`.
+
+Note: when a specific version of a package is required (i.e. not `latest`), the
+buildpack tries to keep the compiled package in cache for future deployments.
 
 ### Environment
 
