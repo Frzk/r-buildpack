@@ -37,6 +37,9 @@ The following instructions should get you started:
 scalingo --app my-r-app run --type console
 ```
 
+
+## Understanding this buildpack
+
 ### Detection
 
 The platform considers the app as a R app if:
@@ -94,6 +97,9 @@ Consequently:
 
 - if you need to run another command, add (or update) your [`Procfile`](https://doc.scalingo.com/platform/app/procfile)
   to specify how to start your `web` process.
+
+
+## Customizing the Build
 
 ### Installing R packages
 
