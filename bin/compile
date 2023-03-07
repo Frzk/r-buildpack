@@ -74,6 +74,7 @@ tar --extract --gzip --verbose --file="${CACHE_DIR}/R-${R_VERSION}.tar.gz" \
 
 pushd "${CACHE_DIR}/R-${R_VERSION}"
 
+
 ./configure \
     FC="${gfortran_package}" LIBnn=lib \
     --prefix="${BUILD_DIR}/R-${R_VERSION}" \
@@ -81,11 +82,17 @@ pushd "${CACHE_DIR}/R-${R_VERSION}"
     --enable-java=no \
     --enable-R-shlib=yes \
     --with-recommended-packages=no \
-    --without-x
+    --without-x \
+    > /dev/null
 
-make FC="${gfortran_package}" -j8
-make install rhome="/app/R-${R_VERSION}"
-make clean
+make FC="${gfortran_package}" -j8 \
+    > /dev/null
+
+make install rhome="/app/R-${R_VERSION}" \
+    > /dev/null
+
+make clean \
+    > /dev/null
 
 popd
 
