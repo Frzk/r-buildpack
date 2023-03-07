@@ -64,16 +64,28 @@ export PATH
 # ----
 # Download and compile R
 
+echo -e "Downloading R ${R_VERSION}..."
+
 curl --silent --location \
     --retry 6 --retry-connrefused --retry-delay 0 \
     "${r_base_url}/R-${R_VERSION:0:1}/R-${R_VERSION}.tar.gz" \
     --output "${CACHE_DIR}/R-${R_VERSION}.tar.gz"
 
-tar --extract --gzip --verbose --file="${CACHE_DIR}/R-${R_VERSION}.tar.gz" \
-    --directory "${CACHE_DIR}"
+echo "OK."
+
+
+echo -e "Extracting R..."
+
+tar --extract --gzip --file="${CACHE_DIR}/R-${R_VERSION}.tar.gz" \
+    --directory "${CACHE_DIR}" \
+    > /dev/null
+
+echo "OK."
+
+
+echo "Compiling and installing R ${R_VERSION}..."
 
 pushd "${CACHE_DIR}/R-${R_VERSION}"
-
 
 ./configure \
     FC="${gfortran_package}" LIBnn=lib \
@@ -95,6 +107,9 @@ make clean \
     > /dev/null
 
 popd
+
+echo "OK."
+
 
 # `make install` put things in /app/R-version, which is likely to be removed.
 # So we copy these things back in $BUILD_DIR which is then "deployed" in /app
@@ -145,7 +160,7 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
             version="latest"
         fi
 
-        echo "-----> Installing package ${pkg_name} (${pkg_version})..."
+        echo -e "Installing R package ${pkg_name} (${pkg_version})..."
 
         if [ "${version}" = "latest" ]; then
             # In this case, R is smart enough to handle the dependencies.
@@ -154,13 +169,15 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 '${BUILD_DIR}/R-${R_VERSION}/library', repos='${r_url}')"
         else
             if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
-                tar --extract --verbose --gzip \
+                tar --extract --gzip \
                     --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
-                    --directory="${BUILD_DIR}/R-${R_VERSION}/library/"
+                    --directory="${BUILD_DIR}/R-${R_VERSION}/library/" \
+                    > /dev/null
 
-                echo "Fetched from cache."
+                echo "OK (fetched from cache)."
             else
-                echo "Downloading ${pkg_name}_${pkg_version}.tar.gz."
+                echo
+                echo "    Downloading ${pkg_name}_${pkg_version}.tar.gz."
                 printf -v pkg_url \
                     "${r_package_url}" "${pkg_name}" "${pkg_version}"
 
@@ -169,17 +186,21 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                     "${pkg_url}" \
                     --output "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz"
 
-                echo "Installing."
+                echo "    Installing."
                 R CMD INSTALL \
                     -l "${BUILD_DIR}/R-${R_VERSION}/library" \
                     --no-html \
-                    "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz"
+                    "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
+                    > /dev/null
 
-                echo "Moving to cache."
+                echo "    Moving to cache."
                 tar --create --verbose --gzip \
                     --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
                     --directory="${BUILD_DIR}/R-${R_VERSION}/library" \
-                    "${pkg_name}"
+                    "${pkg_name}" \
+                    > /dev/null
+
+                echo "OK."
             fi
         fi
     done < "${BUILD_DIR}/R-packages"
