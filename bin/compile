@@ -166,7 +166,10 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
             # In this case, R is smart enough to handle the dependencies.
             # Also, we don't want cache.
             R -e "install.packages('${pkg_name}', \
-                '${BUILD_DIR}/R-${R_VERSION}/library', repos='${r_url}')"
+                '${BUILD_DIR}/R-${R_VERSION}/library', repos='${r_url}')" \
+                > /dev/null
+
+            echo "OK."
         else
             if [ -f "${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" ]; then
                 tar --extract --gzip \
@@ -177,7 +180,7 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                 echo "OK (fetched from cache)."
             else
                 echo
-                echo "      Downloading ${pkg_name}_${pkg_version}.tar.gz."
+                echo -e "\t\tDownloading ${pkg_name}_${pkg_version}.tar.gz."
                 printf -v pkg_url \
                     "${r_package_url}" "${pkg_name}" "${pkg_version}"
 
@@ -186,14 +189,14 @@ if [ -f "${BUILD_DIR}/R-packages" ]; then
                     "${pkg_url}" \
                     --output "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz"
 
-                echo "      Installing."
+                echo -e "\t\tInstalling."
                 R CMD INSTALL \
                     -l "${BUILD_DIR}/R-${R_VERSION}/library" \
                     --no-html \
                     "${TMP_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
                     > /dev/null
 
-                echo "      Moving to cache."
+                echo -e \t\t"Moving to cache."
                 tar --create --verbose --gzip \
                     --file="${CACHE_DIR}/${pkg_name}_${pkg_version}.tar.gz" \
                     --directory="${BUILD_DIR}/R-${R_VERSION}/library" \
